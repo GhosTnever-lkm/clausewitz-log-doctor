@@ -1,0 +1,13 @@
+{
+  "name": "clausewitz-log-doctor",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Offline analyzer for Paradox and Clausewitz game logs",
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check app.js && node --check core.mjs && node --test"
+  },
+  "license": "MIT",
+  "engines": { "node": ">=20" }
+}

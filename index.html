@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#10171d">
+  <meta name="description" content="Офлайн-анализатор журналов игр Paradox: группировка повторов, фильтры и переход к исходной строке.">
+  <title>Clausewitz Log Doctor — анализ игровых журналов</title>
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <header class="topbar"><a class="brand" href="#top"><span class="brand-mark">CL</span><span>Clausewitz <b>Log Doctor</b></span></a><span class="local-badge"><i></i> АНАЛИЗ НА УСТРОЙСТВЕ</span></header>
+  <main id="top">
+    <section class="hero">
+      <div><p class="eyebrow">LOCAL LOG WORKBENCH · PARADOX / CLAUSEWITZ</p><h1>Разбери журнал.<br><em>Найди повтор.</em></h1><p class="hero-copy">Группирует одинаковые строки ошибок, сортирует подсказки по типам и возвращает к их номерам в исходном файле.</p></div>
+      <div class="hero-aside"><span class="aside-label">ПОДДЕРЖИВАЕТ</span><strong>HOI4 · CK3 · EU4<br>Stellaris · Vic3</strong><small>Эвристическая группировка<br>исходный лог не отправляется</small></div>
+    </section>
+
+    <section class="workspace" aria-label="Анализ журнала">
+      <div class="input-card" id="dropzone">
+        <div class="card-heading"><div><p class="eyebrow">01 / SOURCE</p><h2>Добавь журнал</h2></div><span class="limit">до 50 МБ · 500 000 строк</span></div>
+        <div class="dropzone-inner"><div class="file-icon">↥</div><strong>Перетащи error.log сюда</strong><span>или выбери файл с устройства</span><label class="button button-primary" id="choose-file" for="file-input" tabindex="0" role="button">Выбрать файл</label><input id="file-input" type="file" accept=".log,.txt,text/plain"></div>
+        <details class="paste-box"><summary>Или вставь текст вручную</summary><textarea id="paste-input" rows="5" placeholder="Вставь несколько строк из error.log…"></textarea><button class="button button-secondary" id="analyze-paste">Разобрать текст</button></details>
+        <p class="privacy-note">Файл обрабатывается только в этой вкладке. Сетевых запросов нет.</p>
+      </div>
+
+      <div class="results" id="results" hidden>
+        <div class="results-heading"><div><p class="eyebrow">02 / DIAGNOSTICS</p><h2 id="file-title">Отчёт</h2><p class="muted" id="report-meta"></p></div><div class="export-actions"><button class="button button-secondary" id="export-md">Markdown</button><button class="button button-secondary" id="export-json">JSON</button></div></div>
+        <div class="stats" id="stats"></div>
+        <div class="filter-row"><label class="search-wrap"><span>⌕</span><input id="search" type="search" placeholder="Фильтр по тексту или номеру строки" autocomplete="off"></label><label class="select-wrap"><span class="sr-only">Категория</span><select id="category-filter"><option value="all">Все категории</option><option value="syntax">Синтаксис</option><option value="reference">Ссылки и файлы</option><option value="localization">Локализация</option><option value="map">Карта</option><option value="assets">Ресурсы</option><option value="duplicate">Дубли</option><option value="other">Другое</option></select></label><label class="select-wrap"><span class="sr-only">Тип сообщения</span><select id="severity-filter"><option value="all">Любая важность</option><option value="error">Ошибки</option><option value="warning">Предупреждения</option><option value="notice">Уведомления</option></select></label></div>
+        <div class="finding-list" id="findings" aria-live="polite"></div>
+        <p class="disclaimer">Категории назначаются по текстовым признакам. Они помогают сортировать журнал, но не устанавливают первопричину ошибки.</p>
+      </div>
+    </section>
+    <footer><span>Clausewitz Log Doctor <b>0.1.0</b></span><span>MIT · бесплатно и локально</span></footer>
+  </main>
+  <dialog id="source-dialog" class="source-dialog">
+    <div class="source-dialog-head"><div><p class="eyebrow">ORIGINAL LOG</p><h2 id="source-title">Исходные строки</h2></div><button class="button button-secondary" id="close-source">Закрыть</button></div>
+    <pre id="source-context" class="source-context"></pre>
+  </dialog>
+</body>
+</html>
