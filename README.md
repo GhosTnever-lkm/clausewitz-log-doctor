@@ -5,6 +5,7 @@ Offline analyzer for `error.log` files from Hearts of Iron IV, Crusader Kings II
 ## What it does
 
 - Groups repeated diagnostic lines and retains every original one-based line number.
+- Shows findings in 100-item pages so large reports do not fill the page at once.
 - Sorts likely syntax, reference/file, localization, map, asset, and duplicate messages into filters.
 - Filters findings by severity, category, message text, or line number.
 - Exports grouped reports as Markdown or JSON.
