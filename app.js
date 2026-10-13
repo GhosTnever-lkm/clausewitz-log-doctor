@@ -1,4 +1,5 @@
 import { analyzeLog, toJson, toMarkdown } from "./core.mjs";
+import { FINDINGS_PAGE_SIZE, pageFindings } from "./results-page.mjs";
 
 const $ = (selector) => document.querySelector(selector);
 const fileInput = $("#file-input");
@@ -7,6 +8,7 @@ const results = $("#results");
 const findingsEl = $("#findings");
 let report = null;
 let sourceName = "log";
+let findingsPage = 1;
 
 const categoryNames = {
   syntax: "Синтаксис", reference: "Ссылки и файлы", localization: "Локализация",
@@ -18,24 +20,35 @@ function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
 }
 
-function render() {
+function render(resetPage = true) {
   if (!report) return;
+  if (resetPage) findingsPage = 1;
   const query = $("#search").value.trim().toLocaleLowerCase();
   const category = $("#category-filter").value;
   const severity = $("#severity-filter").value;
-  const visible = report.findings.filter((finding) => {
+  const filtered = report.findings.filter((finding) => {
     if (category !== "all" && finding.category !== category) return false;
     if (severity !== "all" && finding.severity !== severity) return false;
     if (!query) return true;
     return finding.message.toLocaleLowerCase().includes(query)
       || finding.lines.some((line) => String(line).includes(query));
   });
-  findingsEl.innerHTML = visible.length ? visible.map((finding) => `
+  const { items, shown, total, remaining } = pageFindings(filtered, findingsPage);
+  findingsEl.innerHTML = filtered.length ? items.map((finding) => `
     <article class="finding">
       <div class="finding-top"><span class="pill ${finding.severity}">${severityNames[finding.severity]}</span><span class="pill cat">${categoryNames[finding.category]}</span><span class="count">× ${finding.count}</span></div>
       <p>${escapeHtml(finding.message)}</p>
       <div class="line-links">${finding.lines.slice(0, 12).map((line) => `<button class="line-link" data-line="${line}">строка ${line}</button>`).join("")}${finding.lines.length > 12 ? `<span class="pill">+${finding.lines.length - 12}</span>` : ""}</div>
     </article>`).join("") : '<div class="empty">Ничего не найдено. Измени фильтры или поисковый запрос.</div>';
+  if (remaining > 0) {
+    findingsEl.insertAdjacentHTML("beforeend", `<div class="load-more-row"><p class="muted">Показано ${shown.toLocaleString("ru-RU")} из ${total.toLocaleString("ru-RU")} групп</p><button class="button button-secondary" type="button" data-load-more>Показать ещё ${Math.min(FINDINGS_PAGE_SIZE, remaining).toLocaleString("ru-RU")}</button></div>`);
+    findingsEl.querySelector("[data-load-more]").addEventListener("click", () => {
+      findingsPage += 1;
+      render(false);
+    });
+  } else if (total > FINDINGS_PAGE_SIZE) {
+    findingsEl.insertAdjacentHTML("beforeend", `<p class="muted load-more-status">Показаны все ${total.toLocaleString("ru-RU")} групп</p>`);
+  }
   findingsEl.querySelectorAll("[data-line]").forEach((button) => button.addEventListener("click", () => openSourceAt(Number(button.dataset.line))));
 }
 
@@ -61,6 +74,7 @@ function download(content, filename, type) {
 function analyze(text, name) {
   try {
     const parsed = analyzeLog(text);
+    findingsPage = 1;
     sourceName = name || "pasted-log";
     report = { ...parsed, sourceLines: text.split(/\r\n|\n|\r/) };
     $("#file-title").textContent = sourceName;
@@ -90,9 +104,9 @@ $("#choose-file").addEventListener("keydown", (event) => {
   }
 });
 $("#analyze-paste").addEventListener("click", () => analyze($("#paste-input").value, "pasted-log"));
-$("#search").addEventListener("input", render);
-$("#category-filter").addEventListener("change", render);
-$("#severity-filter").addEventListener("change", render);
+$("#search").addEventListener("input", () => render());
+$("#category-filter").addEventListener("change", () => render());
+$("#severity-filter").addEventListener("change", () => render());
 $("#export-md").addEventListener("click", () => report && download(toMarkdown(report, sourceName), "clausewitz-log-report.md", "text/markdown;charset=utf-8"));
 $("#export-json").addEventListener("click", () => report && download(toJson(report, sourceName), "clausewitz-log-report.json", "application/json;charset=utf-8"));
 $("#close-source").addEventListener("click", () => $("#source-dialog").close());
