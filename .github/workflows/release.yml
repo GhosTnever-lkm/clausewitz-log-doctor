@@ -11,8 +11,8 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
       - run: npm test
@@ -24,7 +24,7 @@ jobs:
           zip -r "dist/clausewitz-log-doctor-${version}.zip" index.html app.js core.mjs styles.css README.md LICENSE CHANGELOG.md VERSION
           cd dist
           sha256sum "clausewitz-log-doctor-${version}.zip" > "clausewitz-log-doctor-${version}.zip.sha256"
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           generate_release_notes: true
           files: |
