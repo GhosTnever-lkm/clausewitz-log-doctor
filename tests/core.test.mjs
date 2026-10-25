@@ -39,6 +39,18 @@ test("exports grouped findings without losing their source line references", () 
   assert.match(toMarkdown(report, "error.log"), /\| 2 \| 1, 2 \|/);
 });
 
+test("JSON export omits internal source lines and filtered log content", () => {
+  const parsed = analyzeLog("Routine private path: C:/Users/Alice/savegame\nERROR: Missing file x.txt");
+  const report = { ...parsed, sourceLines: ["Routine private path: C:/Users/Alice/savegame", "ERROR: Missing file x.txt"] };
+  const jsonText = toJson(report, "error.log");
+  const json = JSON.parse(jsonText);
+
+  assert.equal(Object.hasOwn(json, "sourceLines"), false);
+  assert.equal(jsonText.includes("Routine private path"), false);
+  assert.equal(jsonText.includes("C:/Users/Alice/savegame"), false);
+  assert.deepEqual(json.findings[0].lines, [2]);
+});
+
 test("rejects inputs that exceed documented bounds", () => {
   assert.throws(() => analyzeLog("x".repeat(MAX_LOG_CHARS + 1)), RangeError);
   assert.throws(() => analyzeLog(Array(MAX_LOG_LINES + 2).join("\n")), RangeError);

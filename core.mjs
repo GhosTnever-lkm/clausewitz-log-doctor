@@ -120,5 +120,17 @@ export function toMarkdown(report, sourceName = "log") {
 }
 
 export function toJson(report, sourceName = "log") {
-  return `${JSON.stringify({ schema_version: 1, source_name: sourceName, ...report }, null, 2)}\n`;
+  const { totalLines, diagnosticLines, uniqueFindings, repeatedLines, errors, warnings, byCategory, findings } = report;
+  return `${JSON.stringify({
+    schema_version: 1,
+    source_name: sourceName,
+    totalLines,
+    diagnosticLines,
+    uniqueFindings,
+    repeatedLines,
+    errors,
+    warnings,
+    byCategory,
+    findings,
+  }, null, 2)}\n`;
 }
