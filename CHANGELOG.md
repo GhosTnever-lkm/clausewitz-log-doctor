@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.1 - 2026-10-25
+
+- Keep the complete source log out of JSON exports; include only report summaries and grouped findings.
+- Bump the app version and asset URLs so browsers load the privacy fix after deployment.
+
 ## 0.2.0 - 2026-10-13
 
 - Paginate diagnostic groups so a large log does not create an unbounded results DOM on first render.
